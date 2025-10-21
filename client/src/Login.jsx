@@ -12,14 +12,17 @@ export default function Login({ setToken, setPage }) {
       setError("Please fill in all fields");
       return;
     }
+
     try {
-      const res = axios.post(`${import.meta.env.VITE_API_URL}/auth/login`, {...}), {
+      const res = await axios.post(`${API}/auth/login`, {
         username: form.username,
-        password: form.password
+        password: form.password,
       });
+
       localStorage.setItem("token", res.data.token);
       setToken(res.data.token);
     } catch (err) {
+      console.error(err);
       setError(err.response?.data?.message || "Login failed");
     }
   };
@@ -29,12 +32,14 @@ export default function Login({ setToken, setPage }) {
       <h2>Login</h2>
       <input
         placeholder="Username"
-        onChange={e => setForm({ ...form, username: e.target.value })}
+        value={form.username}
+        onChange={(e) => setForm({ ...form, username: e.target.value })}
       />
       <input
         placeholder="Password"
         type="password"
-        onChange={e => setForm({ ...form, password: e.target.value })}
+        value={form.password}
+        onChange={(e) => setForm({ ...form, password: e.target.value })}
       />
       <button onClick={login}>Login</button>
       <p>
