@@ -1,5 +1,6 @@
 import axios from "axios";
 import { useState } from "react";
+
 const API = import.meta.env.VITE_API_URL;
 
 export default function Register({ setPage, setToken }) {
@@ -7,16 +8,30 @@ export default function Register({ setPage, setToken }) {
   const [msg, setMsg] = useState("");
 
   const register = async () => {
+    if (!form.username || !form.email || !form.password) {
+      setMsg("Please fill all fields");
+      return;
+    }
+
     try {
-      await axios.post(`${import.meta.env.VITE_API_URL}/auth/register`, {...});
+      // Register the user
+      await axios.post(`${API}/auth/register`, {
+        username: form.username,
+        email: form.email,
+        password: form.password,
+      });
+
       // Auto-login after registration
-      const loginRes = await axios.post(`${import.meta.env.VITE_API_URL}/auth/login`, {...}), {
+      const loginRes = await axios.post(`${API}/auth/login`, {
         username: form.username,
         password: form.password,
       });
+
       localStorage.setItem("token", loginRes.data.token);
       setToken(loginRes.data.token);
+      setMsg("Registration successful!");
     } catch (err) {
+      console.error(err);
       setMsg(err.response?.data?.message || "Registration failed");
     }
   };
@@ -26,16 +41,19 @@ export default function Register({ setPage, setToken }) {
       <h2>Register</h2>
       <input
         placeholder="Username"
-        onChange={e => setForm({ ...form, username: e.target.value })}
+        value={form.username}
+        onChange={(e) => setForm({ ...form, username: e.target.value })}
       />
       <input
         placeholder="Email"
-        onChange={e => setForm({ ...form, email: e.target.value })}
+        value={form.email}
+        onChange={(e) => setForm({ ...form, email: e.target.value })}
       />
       <input
         placeholder="Password"
         type="password"
-        onChange={e => setForm({ ...form, password: e.target.value })}
+        value={form.password}
+        onChange={(e) => setForm({ ...form, password: e.target.value })}
       />
       <button onClick={register}>Register</button>
       <p>
