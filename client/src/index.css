@@ -1,0 +1,160 @@
+body {
+  font-family: Arial, sans-serif;
+  background: #f5f5f5;
+  margin: 0;
+  padding: 0;
+}
+
+.auth-container {
+  width: 350px;
+  margin: 80px auto;
+  padding: 30px;
+  background: #fff;
+  border-radius: 10px;
+  box-shadow: 0 5px 20px rgba(0,0,0,0.1);
+  text-align: center;
+}
+
+.auth-container h2 {
+  margin-bottom: 20px;
+  color: #6a0dad;
+}
+
+.auth-container input, .auth-container textarea {
+  width: 90%;
+  padding: 10px;
+  margin: 10px 0;
+  border-radius: 6px;
+  border: 1px solid #ccc;
+  font-size: 14px;
+}
+
+.auth-container button {
+  padding: 10px 20px;
+  background: #6a0dad;
+  color: white;
+  border: none;
+  border-radius: 6px;
+  cursor: pointer;
+  margin-top: 10px;
+  font-weight: bold;
+  transition: 0.3s;
+}
+
+.auth-container button:hover {
+  background: #520b8a;
+}
+
+.switch-page {
+  color: #6a0dad;
+  cursor: pointer;
+  font-weight: bold;
+}
+
+.switch-page:hover {
+  text-decoration: underline;
+}
+
+.error {
+  color: red;
+  margin-top: 10px;
+}
+
+.dashboard {
+  width: 700px;
+  margin: 50px auto;
+  background: #fff;
+  padding: 25px 30px;
+  border-radius: 10px;
+  box-shadow: 0 5px 15px rgba(0,0,0,0.1);
+}
+
+.dashboard h2 {
+  margin-bottom: 15px;
+  color: #2d3436;
+}
+
+.logout-btn {
+  background: #e74c3c;
+  color: #fff;
+  border: none;
+  padding: 8px 12px;
+  border-radius: 6px;
+  cursor: pointer;
+  float: right;
+  font-weight: bold;
+}
+
+.logout-btn:hover {
+  background: #c0392b;
+}
+
+.note-form {
+  margin-bottom: 25px;
+}
+
+.note-form input,
+.note-form textarea {
+  width: 100%;
+  padding: 10px;
+  margin-bottom: 10px;
+  border-radius: 6px;
+  border: 1px solid #ccc;
+  font-size: 14px;
+}
+
+.note-form button {
+  background: #6a0dad;
+  color: white;
+  border: none;
+  padding: 8px 12px;
+  border-radius: 6px;
+  cursor: pointer;
+  font-weight: bold;
+  transition: 0.3s;
+}
+
+.note-form button:hover {
+  background: #520b8a;
+}
+
+.notes-list .note {
+  background: #f0e6ff;
+  padding: 15px;
+  border-radius: 8px;
+  margin-bottom: 12px;
+  position: relative;
+  transition: 0.2s;
+}
+
+.notes-list .note:hover {
+  background: #e6d9ff;
+}
+
+.notes-list .note h3 {
+  margin: 0 0 8px;
+  color: #6a0dad;
+}
+
+.notes-list .note p {
+  margin: 0;
+  color: #2d3436;
+}
+
+.notes-list .note button {
+  position: absolute;
+  top: 10px;
+  right: 10px;
+  background: #e74c3c;
+  color: white;
+  border: none;
+  padding: 4px 8px;
+  border-radius: 4px;
+  cursor: pointer;
+  font-size: 12px;
+  transition: 0.2s;
+}
+
+.notes-list .note button:hover {
+  background: #c0392b;
+}
