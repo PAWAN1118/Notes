@@ -8,9 +8,9 @@ export default function Register({ setPage, setToken }) {
 
   const register = async () => {
     try {
-      await axios.post(`${API}/auth/register`, form);
+      await axios.post(`${import.meta.env.VITE_API_URL}/auth/register`, {...});
       // Auto-login after registration
-      const loginRes = await axios.post(`${API}/auth/login`, {
+      const loginRes = await axios.post(`${import.meta.env.VITE_API_URL}/auth/login`, {...}), {
         username: form.username,
         password: form.password,
       });
