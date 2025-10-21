@@ -10,7 +10,7 @@ export default function Dashboard({ token, setToken }) {
 
   const fetchNotes = async () => {
     try {
-      const res = await axios.get(`${API}/notes`, {
+      const res = await axios.get(`${import.meta.env.VITE_API_URL}/notes/${userId}`), {
         headers: { Authorization: `Bearer ${token}` },
       });
       setNotes(res.data);
@@ -27,7 +27,7 @@ export default function Dashboard({ token, setToken }) {
   const addNote = async () => {
     if (!title || !content) return;
     try {
-      const res = await axios.post(`${API}/notes`, { title, content }, {
+      const res = await axios.get(`${import.meta.env.VITE_API_URL}/notes/${userId}`), { title, content }, {
         headers: { Authorization: `Bearer ${token}` },
       });
       setNotes(prev => [...prev, res.data]);
