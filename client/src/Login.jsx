@@ -13,7 +13,7 @@ export default function Login({ setToken, setPage }) {
       return;
     }
     try {
-      const res = await axios.post(`${API}/auth/login`, {
+      const res = axios.post(`${import.meta.env.VITE_API_URL}/auth/login`, {...}), {
         username: form.username,
         password: form.password
       });
