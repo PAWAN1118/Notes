@@ -1,4 +1,5 @@
-import api from "./api";
+import axios from "axios";
+
 import { useState } from "react";
 
 export default function Login({ setToken, setPage }) {
