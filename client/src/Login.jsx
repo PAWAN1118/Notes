@@ -1,7 +1,5 @@
-import axios from "axios";
+import api from "./api";
 import { useState } from "react";
-
-const API = import.meta.env.VITE_API_URL;
 
 export default function Login({ setToken, setPage }) {
   const [form, setForm] = useState({ username: "", password: "" });
@@ -14,11 +12,7 @@ export default function Login({ setToken, setPage }) {
     }
 
     try {
-      const res = await axios.post(`${API}/auth/login`, {
-        username: form.username,
-        password: form.password,
-      });
-
+      const res = await api.post("/auth/login", form);
       localStorage.setItem("token", res.data.token);
       setToken(res.data.token);
     } catch (err) {
