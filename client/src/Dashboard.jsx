@@ -8,11 +8,12 @@ export default function Dashboard({ token, setToken }) {
   const [title, setTitle] = useState("");
   const [content, setContent] = useState("");
 
-  const userId = token; // token is username
-
+  // Fetch notes from backend
   const fetchNotes = async () => {
     try {
-      const res = await axios.get(`${API}/notes/${userId}`);
+      const res = await axios.get(`${API}/notes`, {
+        headers: { Authorization: `Bearer ${token}` },
+      });
       setNotes(res.data);
     } catch (err) {
       console.error(err);
@@ -27,11 +28,11 @@ export default function Dashboard({ token, setToken }) {
   const addNote = async () => {
     if (!title || !content) return;
     try {
-      const res = await axios.post(`${API}/notes`, {
-        userId,
-        title,
-        content
-      });
+      const res = await axios.post(
+        `${API}/notes`,
+        { title, content },
+        { headers: { Authorization: `Bearer ${token}` } }
+      );
       setNotes(prev => [...prev, res.data]);
       setTitle("");
       setContent("");
@@ -42,7 +43,9 @@ export default function Dashboard({ token, setToken }) {
 
   const deleteNote = async (id) => {
     try {
-      await axios.delete(`${API}/notes/${id}`);
+      await axios.delete(`${API}/notes/${id}`, {
+        headers: { Authorization: `Bearer ${token}` },
+      });
       setNotes(prev => prev.filter(note => note._id !== id));
     } catch (err) {
       console.error(err);
