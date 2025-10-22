@@ -1,84 +1,70 @@
 import axios from "axios";
 import { useEffect, useState } from "react";
 
-const API = import.meta.env.VITE_API_URL.replace(/\/$/, ""); // remove trailing slash
+const API = import.meta.env.VITE_API_URL.replace(/\/$/, "");
 
-export default function Notes({ token, setToken }) {
+export default function Notes({ username }) {
   const [notes, setNotes] = useState([]);
   const [form, setForm] = useState({ title: "", content: "" });
 
-  // Get the logged-in username from localStorage
-  const username = localStorage.getItem("username");
-
+  // Fetch notes
   const fetchNotes = async () => {
-    if (!username) return;
     try {
-      const res = await axios.get(`${API}/notes/${username}`, {
-        headers: { Authorization: `Bearer ${token}` },
-      });
+      const res = await axios.get(`${API}/notes/${username}`);
       setNotes(res.data);
     } catch (err) {
-      console.error("Fetch Notes Error:", err);
+      console.error("Fetch Notes Error:", err.response?.data || err.message);
+      if (err.response?.status === 404) setNotes([]);
     }
   };
 
+  // Add note
   const addNote = async () => {
+    if (!form.title || !form.content) return;
+
     try {
-      await axios.post(
-        `${API}/notes`,
-        { username, ...form },
-        { headers: { Authorization: `Bearer ${token}` } }
-      );
+      const res = await axios.post(`${API}/notes`, {
+        userId: username,
+        title: form.title,
+        content: form.content
+      });
+      setNotes(prev => [...prev, res.data]);
       setForm({ title: "", content: "" });
-      fetchNotes();
     } catch (err) {
-      console.error("Add Note Error:", err);
+      console.error("Add Note Error:", err.response?.data || err.message);
     }
   };
 
+  // Delete note
   const deleteNote = async (id) => {
     try {
-      await axios.delete(`${API}/notes/${id}`, {
-        headers: { Authorization: `Bearer ${token}` },
-      });
-      fetchNotes();
+      await axios.delete(`${API}/notes/${id}`);
+      setNotes(prev => prev.filter(note => note._id !== id));
     } catch (err) {
-      console.error("Delete Note Error:", err);
+      console.error("Delete Note Error:", err.response?.data || err.message);
     }
   };
 
-  useEffect(() => {
-    fetchNotes();
-  }, [username]);
+  useEffect(() => { fetchNotes(); }, []);
 
   return (
     <div className="notes">
-      <header>
-        <h1>My Notes</h1>
-        <button
-          onClick={() => {
-            localStorage.clear();
-            setToken(null);
-          }}
-        >
-          Logout
-        </button>
-      </header>
+      <h1>{username}'s Notes</h1>
       <div className="add-note">
         <input
           placeholder="Title"
           value={form.title}
-          onChange={(e) => setForm({ ...form, title: e.target.value })}
+          onChange={e => setForm({...form, title: e.target.value})}
         />
         <input
           placeholder="Content"
           value={form.content}
-          onChange={(e) => setForm({ ...form, content: e.target.value })}
+          onChange={e => setForm({...form, content: e.target.value})}
         />
         <button onClick={addNote}>Add</button>
       </div>
       <ul>
-        {notes.map((n) => (
+        {notes.map(n => (
           <li key={n._id}>
             <h3>{n.title}</h3>
             <p>{n.content}</p>
