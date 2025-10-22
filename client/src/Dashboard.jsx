@@ -1,65 +1,59 @@
 import { useState, useEffect } from "react";
 import axios from "axios";
 
-const API = import.meta.env.VITE_API_URL;
+const API = import.meta.env.VITE_API_URL.replace(/\/$/, ""); // Remove trailing slash
 
-export default function Dashboard({ token, setToken }) {
+export default function Dashboard({ token, setToken, username }) {
   const [notes, setNotes] = useState([]);
   const [title, setTitle] = useState("");
   const [content, setContent] = useState("");
-  const [error, setError] = useState("");
 
-  const userId = token; // token is used as username
-
+  // Fetch notes for logged-in user
   const fetchNotes = async () => {
     try {
-      const res = await axios.get(`${API}/notes/${userId}`);
+      const res = await axios.get(`${API}/notes/${username}`);
       setNotes(res.data);
     } catch (err) {
-      console.error(err);
-      if (err.response?.status === 404) setError("No notes found for this user.");
-      if (err.response?.status === 401) logout();
+      console.error("Fetch Notes Error:", err.response?.data || err.message);
+      if (err.response?.status === 404) setNotes([]); // No notes yet
     }
   };
 
   useEffect(() => {
-    if (userId) fetchNotes();
-  }, [userId]);
+    fetchNotes();
+  }, []);
 
+  // Add a new note
   const addNote = async () => {
-    if (!title || !content) {
-      setError("Please fill both Title and Content");
-      return;
-    }
+    if (!title || !content) return;
+
     try {
-      const res = await axios.post(
-        `${API}/notes`,
-        { userId, title, content },
-        { headers: { "Content-Type": "application/json" } }
-      );
+      const res = await axios.post(`${API}/notes`, {
+        userId: username,
+        title,
+        content
+      });
       setNotes(prev => [...prev, res.data]);
       setTitle("");
       setContent("");
-      setError("");
     } catch (err) {
-      console.error(err);
-      setError("Failed to add note");
+      console.error("Add Note Error:", err.response?.data || err.message);
     }
   };
 
+  // Delete a note
   const deleteNote = async (id) => {
     try {
       await axios.delete(`${API}/notes/${id}`);
       setNotes(prev => prev.filter(note => note._id !== id));
     } catch (err) {
-      console.error(err);
-      setError("Failed to delete note");
+      console.error("Delete Note Error:", err.response?.data || err.message);
     }
   };
 
+  // Logout
   const logout = () => {
-    localStorage.removeItem("token");
-    setToken(""); // triggers parent to show login page
+    setToken(""); // Clear token state
   };
 
   return (
@@ -83,8 +77,6 @@ export default function Dashboard({ token, setToken }) {
         />
         <button className="add-btn" onClick={addNote}>Add Note</button>
       </div>
-
-      {error && <p className="error-msg">{error}</p>}
 
       <div className="notes-list">
         {notes.length === 0 && <p>No notes yet. Add one above!</p>}
