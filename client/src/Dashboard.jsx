@@ -1,21 +1,22 @@
 import { useState, useEffect } from "react";
 import axios from "axios";
 
-const API = import.meta.env.VITE_API_URL.replace(/\/$/, ""); // Remove trailing slash
+const API = import.meta.env.VITE_API_URL;
 
-export default function Dashboard({ token, setToken, username }) {
+export default function Dashboard({ token, setToken }) {
   const [notes, setNotes] = useState([]);
   const [title, setTitle] = useState("");
   const [content, setContent] = useState("");
 
-  // Fetch notes for logged-in user
   const fetchNotes = async () => {
     try {
-      const res = await axios.get(`${API}/notes/${username}`);
+      const res = await axios.get(`${API}/notes`, {
+        headers: { Authorization: `Bearer ${token}` },
+      });
       setNotes(res.data);
     } catch (err) {
-      console.error("Fetch Notes Error:", err.response?.data || err.message);
-      if (err.response?.status === 404) setNotes([]); // No notes yet
+      console.error(err);
+      if (err.response?.status === 401) logout();
     }
   };
 
@@ -23,37 +24,34 @@ export default function Dashboard({ token, setToken, username }) {
     fetchNotes();
   }, []);
 
-  // Add a new note
   const addNote = async () => {
     if (!title || !content) return;
-
     try {
-      const res = await axios.post(`${API}/notes`, {
-        userId: username,
-        title,
-        content
+      const res = await axios.post(`${API}/notes`, { title, content }, {
+        headers: { Authorization: `Bearer ${token}` },
       });
       setNotes(prev => [...prev, res.data]);
       setTitle("");
       setContent("");
     } catch (err) {
-      console.error("Add Note Error:", err.response?.data || err.message);
+      console.error(err);
     }
   };
 
-  // Delete a note
   const deleteNote = async (id) => {
     try {
-      await axios.delete(`${API}/notes/${id}`);
+      await axios.delete(`${API}/notes/${id}`, {
+        headers: { Authorization: `Bearer ${token}` },
+      });
       setNotes(prev => prev.filter(note => note._id !== id));
     } catch (err) {
-      console.error("Delete Note Error:", err.response?.data || err.message);
+      console.error(err);
     }
   };
 
-  // Logout
   const logout = () => {
-    setToken(""); // Clear token state
+    localStorage.removeItem("token");
+    setToken("");
   };
 
   return (
