@@ -1,13 +1,13 @@
 import axios from "axios";
 import { useEffect, useState } from "react";
 
-const API = import.meta.env.VITE_API_URL;
+const API = import.meta.env.VITE_API_URL.replace(/\/$/, ""); // remove trailing slash
 
 export default function Notes({ token, setToken }) {
   const [notes, setNotes] = useState([]);
   const [form, setForm] = useState({ title: "", content: "" });
 
-  // Get username dynamically from localStorage
+  // Get the logged-in username from localStorage
   const username = localStorage.getItem("username");
 
   const fetchNotes = async () => {
@@ -18,13 +18,12 @@ export default function Notes({ token, setToken }) {
       });
       setNotes(res.data);
     } catch (err) {
-      console.error(err);
+      console.error("Fetch Notes Error:", err);
     }
   };
 
   const addNote = async () => {
     try {
-      // Include username in POST body
       await axios.post(
         `${API}/notes`,
         { username, ...form },
@@ -33,7 +32,7 @@ export default function Notes({ token, setToken }) {
       setForm({ title: "", content: "" });
       fetchNotes();
     } catch (err) {
-      console.error(err);
+      console.error("Add Note Error:", err);
     }
   };
 
@@ -44,7 +43,7 @@ export default function Notes({ token, setToken }) {
       });
       fetchNotes();
     } catch (err) {
-      console.error(err);
+      console.error("Delete Note Error:", err);
     }
   };
 
