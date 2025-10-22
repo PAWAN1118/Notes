@@ -1,10 +1,14 @@
 import axios from "axios";
-
 import { useState } from "react";
 
 export default function Login({ setToken, setPage }) {
   const [form, setForm] = useState({ username: "", password: "" });
   const [error, setError] = useState("");
+
+  // Define axios instance (replace URL with your actual Render backend)
+  const api = axios.create({
+    baseURL: "https://notes-api-<your-render-name>.onrender.com", // 👈 change this to your real URL
+  });
 
   const login = async () => {
     if (!form.username || !form.password) {
