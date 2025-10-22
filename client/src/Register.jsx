@@ -1,7 +1,7 @@
 import axios from "axios";
 import { useState } from "react";
 
-const API = import.meta.env.VITE_API_URL;
+const API = import.meta.env.VITE_API_URL.replace(/\/+$/, ""); // clean trailing slashes
 
 export default function Register({ setPage, setToken }) {
   const [form, setForm] = useState({ username: "", email: "", password: "" });
@@ -15,11 +15,7 @@ export default function Register({ setPage, setToken }) {
 
     try {
       // Register the user
-      await axios.post(`${API}/auth/register`, {
-        username: form.username,
-        email: form.email,
-        password: form.password,
-      });
+      await axios.post(`${API}/auth/register`, form);
 
       // Auto-login after registration
       const loginRes = await axios.post(`${API}/auth/login`, {
