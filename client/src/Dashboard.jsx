@@ -7,54 +7,59 @@ export default function Dashboard({ token, setToken }) {
   const [notes, setNotes] = useState([]);
   const [title, setTitle] = useState("");
   const [content, setContent] = useState("");
+  const [error, setError] = useState("");
 
-  // Fetch notes from backend
+  const userId = token; // token is used as username
+
   const fetchNotes = async () => {
     try {
-      const res = await axios.get(`${API}/notes`, {
-        headers: { Authorization: `Bearer ${token}` },
-      });
+      const res = await axios.get(`${API}/notes/${userId}`);
       setNotes(res.data);
     } catch (err) {
       console.error(err);
+      if (err.response?.status === 404) setError("No notes found for this user.");
       if (err.response?.status === 401) logout();
     }
   };
 
   useEffect(() => {
-    fetchNotes();
-  }, []);
+    if (userId) fetchNotes();
+  }, [userId]);
 
   const addNote = async () => {
-    if (!title || !content) return;
+    if (!title || !content) {
+      setError("Please fill both Title and Content");
+      return;
+    }
     try {
       const res = await axios.post(
         `${API}/notes`,
-        { title, content },
-        { headers: { Authorization: `Bearer ${token}` } }
+        { userId, title, content },
+        { headers: { "Content-Type": "application/json" } }
       );
       setNotes(prev => [...prev, res.data]);
       setTitle("");
       setContent("");
+      setError("");
     } catch (err) {
       console.error(err);
+      setError("Failed to add note");
     }
   };
 
   const deleteNote = async (id) => {
     try {
-      await axios.delete(`${API}/notes/${id}`, {
-        headers: { Authorization: `Bearer ${token}` },
-      });
+      await axios.delete(`${API}/notes/${id}`);
       setNotes(prev => prev.filter(note => note._id !== id));
     } catch (err) {
       console.error(err);
+      setError("Failed to delete note");
     }
   };
 
   const logout = () => {
     localStorage.removeItem("token");
-    setToken("");
+    setToken(""); // triggers parent to show login page
   };
 
   return (
@@ -78,6 +83,8 @@ export default function Dashboard({ token, setToken }) {
         />
         <button className="add-btn" onClick={addNote}>Add Note</button>
       </div>
+
+      {error && <p className="error-msg">{error}</p>}
 
       <div className="notes-list">
         {notes.length === 0 && <p>No notes yet. Add one above!</p>}
