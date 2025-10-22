@@ -1,55 +1,42 @@
 import axios from "axios";
 import { useEffect, useState } from "react";
 
-const API = import.meta.env.VITE_API_URL.replace(/\/$/, "");
+const API = import.meta.env.VITE_API_URL;
 
-export default function Notes({ username }) {
+export default function Notes({ token, setToken }) {
   const [notes, setNotes] = useState([]);
   const [form, setForm] = useState({ title: "", content: "" });
 
-  // Fetch notes
   const fetchNotes = async () => {
-    try {
-      const res = await axios.get(`${API}/notes/${username}`);
-      setNotes(res.data);
-    } catch (err) {
-      console.error("Fetch Notes Error:", err.response?.data || err.message);
-      if (err.response?.status === 404) setNotes([]);
-    }
+    const res = await axios.get(`${API}/notes`, {
+      headers: { Authorization: `Bearer ${token}` },
+    });
+    setNotes(res.data);
   };
 
-  // Add note
   const addNote = async () => {
-    if (!form.title || !form.content) return;
-
-    try {
-      const res = await axios.post(`${API}/notes`, {
-        userId: username,
-        title: form.title,
-        content: form.content
-      });
-      setNotes(prev => [...prev, res.data]);
-      setForm({ title: "", content: "" });
-    } catch (err) {
-      console.error("Add Note Error:", err.response?.data || err.message);
-    }
+    await axios.post(`${API}/notes`, form, {
+      headers: { Authorization: `Bearer ${token}` },
+    });
+    setForm({ title: "", content: "" });
+    fetchNotes();
   };
 
-  // Delete note
   const deleteNote = async (id) => {
-    try {
-      await axios.delete(`${API}/notes/${id}`);
-      setNotes(prev => prev.filter(note => note._id !== id));
-    } catch (err) {
-      console.error("Delete Note Error:", err.response?.data || err.message);
-    }
+    await axios.delete(`${API}/notes/${id}`, {
+      headers: { Authorization: `Bearer ${token}` },
+    });
+    fetchNotes();
   };
 
   useEffect(() => { fetchNotes(); }, []);
 
   return (
     <div className="notes">
-      <h1>{username}'s Notes</h1>
+      <header>
+        <h1>My Notes</h1>
+        <button onClick={() => { localStorage.clear(); setToken(null); }}>Logout</button>
+      </header>
       <div className="add-note">
         <input
           placeholder="Title"
