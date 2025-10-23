@@ -3,10 +3,11 @@ import Note from "../models/Note.js";
 // Create note
 export const createNote = async (req, res) => {
   try {
-    const { title, content } = req.body;
-    if (!title || !content) return res.status(400).json({ message: "All fields are required" });
+    const { title, content, userId } = req.body;
+    if (!title || !content || !userId)
+      return res.status(400).json({ message: "All fields are required" });
 
-    const note = new Note({ userId: req.userId, title, content });
+    const note = new Note({ userId, title, content });
     await note.save();
     res.status(201).json(note);
   } catch (err) {
@@ -16,9 +17,13 @@ export const createNote = async (req, res) => {
 };
 
 // Get all notes for user
+// Get all notes for user
 export const getNotes = async (req, res) => {
   try {
-    const notes = await Note.find({ userId: req.userId });
+    const userId = req.query.userId; // <-- get from query instead of req.userId
+    if (!userId) return res.status(400).json({ message: "userId is required" });
+
+    const notes = await Note.find({ userId });
     res.status(200).json(notes);
   } catch (err) {
     console.error(err.message);
@@ -26,10 +31,12 @@ export const getNotes = async (req, res) => {
   }
 };
 
+
 // Delete note
 export const deleteNote = async (req, res) => {
   try {
-    const note = await Note.findOneAndDelete({ _id: req.params.id, userId: req.userId });
+    const { userId } = req.body;
+    const note = await Note.findOneAndDelete({ _id: req.params.id, userId });
     if (!note) return res.status(404).json({ message: "Note not found" });
     res.status(200).json({ message: "Note deleted" });
   } catch (err) {
@@ -37,3 +44,4 @@ export const deleteNote = async (req, res) => {
     res.status(500).json({ message: err.message });
   }
 };
+
