@@ -14,19 +14,20 @@ export default function Register({ setPage, setToken }) {
     }
 
     try {
-      // Register user
       await axios.post(`${API}/api/auth/register`, form);
 
       // Auto-login after registration
       const loginRes = await axios.post(`${API}api/auth/login`, {
-      username: form.username,
-      password: form.password,
+        username: form.username,
+        password: form.password,
       });
 
-      localStorage.setItem("token", loginRes.data.token);
-      localStorage.setItem("userId", loginRes.data.user._id); // <-- store userId
-      setToken(loginRes.data.token);
+      const token = loginRes.data.token;
+      const userId = loginRes.data.user._id;
 
+      localStorage.setItem("token", token);
+      localStorage.setItem("userId", userId); // store userId
+      setToken(token);
       setMsg("Registration successful!");
     } catch (err) {
       console.error(err);
