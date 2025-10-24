@@ -15,7 +15,7 @@ export default function Register({ setPage, setToken }) {
 
     try {
       // Register the user
-      await axios.post(`${API}api/auth/register`, form);
+      await axios.post(`${API}/api/auth/register`, form);
 
       // Auto-login after registration
       const loginRes = await axios.post(`${API}api/auth/login`, {
