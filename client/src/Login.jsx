@@ -6,6 +6,7 @@ import { useState } from "react";
 
 const API = import.meta.env.VITE_API_URL;
 
+
 export default function Login({ setToken, setPage }) {
   const [form, setForm] = useState({ username: "", password: "" });
   const [error, setError] = useState("");
@@ -17,19 +18,14 @@ export default function Login({ setToken, setPage }) {
     }
 
     try {
-      // 1️⃣ login to get token
       const res = await axios.post(`${API}api/auth/login`, form);
-      const token = res.data.token;
+
+      // store token and userId
+      const { token, userId } = res.data;
       localStorage.setItem("token", token);
-      setToken(token); // this triggers Dashboard fetch
+      localStorage.setItem("userId", userId);
 
-      // 2️⃣ fetch user info immediately after login
-      const userRes = await axios.get(`${API}api/auth/me`, {
-        headers: { Authorization: `Bearer ${token}` },
-      });
-      const userId = userRes.data.id; // or _id depending on backend
-      localStorage.setItem("userId", userId); // store userId for Notes.jsx
-
+      setToken(token); // triggers Dashboard fetch
       setError("");
     } catch (err) {
       setError(err.response?.data?.message || "Login failed");
@@ -42,13 +38,13 @@ export default function Login({ setToken, setPage }) {
       <input
         placeholder="Username"
         value={form.username}
-        onChange={(e) => setForm({ ...form, username: e.target.value })}
+        onChange={e => setForm({ ...form, username: e.target.value })}
       />
       <input
         placeholder="Password"
         type="password"
         value={form.password}
-        onChange={(e) => setForm({ ...form, password: e.target.value })}
+        onChange={e => setForm({ ...form, password: e.target.value })}
       />
       <button onClick={login}>Login</button>
       <p>
@@ -61,3 +57,4 @@ export default function Login({ setToken, setPage }) {
     </div>
   );
 }
+
