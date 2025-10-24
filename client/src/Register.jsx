@@ -1,5 +1,3 @@
-
-
 import axios from "axios";
 import { useState } from "react";
 
@@ -16,7 +14,7 @@ export default function Register({ setPage, setToken }) {
     }
 
     try {
-      // Register the user
+      // Register user
       await axios.post(`${API}/api/auth/register`, form);
 
       // Auto-login after registration
@@ -25,11 +23,10 @@ export default function Register({ setPage, setToken }) {
         password: form.password,
       });
 
-      // Save token and userId for notes
-      localStorage.setItem("token", loginRes.data.token);
-      localStorage.setItem("userId", loginRes.data.userId); // <-- store userId
-      setToken(loginRes.data.token);
-
+      const { token, userId } = loginRes.data;  // <-- get userId
+      localStorage.setItem("token", token);
+      localStorage.setItem("userId", userId);   // <-- save userId
+      setToken(token);
       setMsg("Registration successful!");
     } catch (err) {
       console.error(err);
