@@ -8,33 +8,46 @@ export default function Dashboard({ token, setToken }) {
   const [title, setTitle] = useState("");
   const [content, setContent] = useState("");
 
-  const fetchNotes = async () => {
-    try {
-      const res = await axios.get(`${API}/notes`, {
-        headers: { Authorization: `Bearer ${token}` },
-      });
-      setNotes(res.data);
-    } catch (err) {
-      console.error(err);
-      if (err.response?.status === 401) logout();
-    }
-  };
-
+  // Load token from localStorage on mount
   useEffect(() => {
-    fetchNotes();
+    const storedToken = token || localStorage.getItem("token");
+    if (storedToken) setToken(storedToken);
   }, []);
+
+  // Fetch notes whenever token is available
+  useEffect(() => {
+    if (!token) return;
+
+    const fetchNotes = async () => {
+      try {
+        const res = await axios.get(`${API}/notes`, {
+          headers: { Authorization: `Bearer ${token}` },
+        });
+        setNotes(res.data);
+      } catch (err) {
+        console.error(err);
+        if (err.response?.status === 401) logout();
+      }
+    };
+
+    fetchNotes();
+  }, [token]);
 
   const addNote = async () => {
     if (!title || !content) return;
+
     try {
-      const res = await axios.post(`${API}/notes`, { title, content }, {
-        headers: { Authorization: `Bearer ${token}` },
-      });
+      const res = await axios.post(
+        `${API}/notes`,
+        { title, content },
+        { headers: { Authorization: `Bearer ${token}` } }
+      );
       setNotes(prev => [...prev, res.data]);
       setTitle("");
       setContent("");
     } catch (err) {
       console.error(err);
+      alert(err.response?.data?.message || "Failed to add note");
     }
   };
 
@@ -46,12 +59,14 @@ export default function Dashboard({ token, setToken }) {
       setNotes(prev => prev.filter(note => note._id !== id));
     } catch (err) {
       console.error(err);
+      alert(err.response?.data?.message || "Failed to delete note");
     }
   };
 
   const logout = () => {
     localStorage.removeItem("token");
     setToken("");
+    setNotes([]);
   };
 
   return (
@@ -73,7 +88,7 @@ export default function Dashboard({ token, setToken }) {
           value={content}
           onChange={e => setContent(e.target.value)}
         />
-        <button className="add-btn" onClick={addNote}>Add Note</button>
+        <button onClick={addNote}>Add Note</button>
       </div>
 
       <div className="notes-list">
@@ -82,7 +97,7 @@ export default function Dashboard({ token, setToken }) {
           <div className="note-card" key={note._id}>
             <h3>{note.title}</h3>
             <p>{note.content}</p>
-            <button className="delete-btn" onClick={() => deleteNote(note._id)}>Delete</button>
+            <button onClick={() => deleteNote(note._id)}>Delete</button>
           </div>
         ))}
       </div>
