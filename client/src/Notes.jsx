@@ -1,32 +1,34 @@
 import axios from "axios";
 import { useEffect, useState } from "react";
 
-const API = import.meta.env.VITE_API_URL;
+const API = import.meta.env.VITE_API_URL; // make sure NO trailing slash
 
 export default function Notes({ token, setToken, userId }) {
   const [notes, setNotes] = useState([]);
   const [form, setForm] = useState({ title: "", content: "" });
   const [error, setError] = useState("");
 
-  // Fetch all notes for this user
+  // Fetch notes
   const fetchNotes = async () => {
     try {
       const res = await axios.get(`${API}/api/notes?userId=${userId}`, {
         headers: { Authorization: `Bearer ${token}` },
       });
       setNotes(res.data);
+      setError("");
     } catch (err) {
       console.error(err);
       setError(err.response?.data?.message || "Failed to fetch notes");
     }
   };
 
-  // Add a new note
+  // Add note
   const addNote = async () => {
     if (!form.title || !form.content) {
-      setError("Please fill in both title and content");
+      setError("Please fill in all fields");
       return;
     }
+
     try {
       await axios.post(
         `${API}/api/notes`,
@@ -34,7 +36,6 @@ export default function Notes({ token, setToken, userId }) {
         { headers: { Authorization: `Bearer ${token}` } }
       );
       setForm({ title: "", content: "" });
-      setError("");
       fetchNotes();
     } catch (err) {
       console.error(err);
@@ -42,12 +43,12 @@ export default function Notes({ token, setToken, userId }) {
     }
   };
 
-  // Delete a note
+  // Delete note
   const deleteNote = async (id) => {
     try {
       await axios.delete(`${API}/api/notes/${id}`, {
         headers: { Authorization: `Bearer ${token}` },
-        data: { userId }, // send userId in body for delete
+        data: { userId },
       });
       fetchNotes();
     } catch (err) {
