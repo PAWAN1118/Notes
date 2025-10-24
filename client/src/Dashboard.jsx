@@ -1,82 +1,59 @@
-
-
-
 import { useState, useEffect } from "react";
 import axios from "axios";
 
-
-const API = import.meta.env.VITE_API_URL;
+const API = "https://notes-r5hn.onrender.com"; // backend URL
 
 export default function Dashboard({ token, setToken }) {
   const [notes, setNotes] = useState([]);
   const [title, setTitle] = useState("");
   const [content, setContent] = useState("");
 
-  const userId = localStorage.getItem("userId"); // get userId from login
+  const userId = localStorage.getItem("userId"); // get saved userId
+  const headers = { Authorization: `Bearer ${token}` };
 
-  // Load token from localStorage on mount
-  useEffect(() => {
-    const storedToken = token || localStorage.getItem("token");
-    if (storedToken) setToken(storedToken);
-  }, []);
-
-  // Fetch notes whenever token is available
-  useEffect(() => {
-    if (!token || !userId) return;
-
-    const fetchNotes = async () => {
-      try {
-        const res = await axios.get(`${API}api/notes`, {
-          headers: { Authorization: `Bearer ${token}` },
-          params: { userId }, // send userId as query
-        });
-        setNotes(res.data);
-      } catch (err) {
-        console.error(err);
-        if (err.response?.status === 401) logout();
-      }
-    };
-
-    fetchNotes();
-  }, [token, userId]);
+  const fetchNotes = async () => {
+    if (!userId) return;
+    try {
+      const res = await axios.get(`${API}api/notes?userId=${userId}`, { headers });
+      setNotes(res.data);
+    } catch (err) {
+      console.error("Failed to fetch notes:", err.response?.data || err);
+      if (err.response?.status === 401) logout();
+    }
+  };
 
   const addNote = async () => {
-    if (!title || !content) return;
-
+    if (!title || !content) return alert("Fill all fields");
     try {
-      const res = await axios.post(
-        `${API}api/notes`,
-        { title, content, userId }, // include userId
-        { headers: { Authorization: `Bearer ${token}` } }
-      );
-      setNotes(prev => [...prev, res.data]);
+      await axios.post(`${API}api/notes`, { title, content, userId }, { headers });
       setTitle("");
       setContent("");
+      fetchNotes();
     } catch (err) {
-      console.error(err);
+      console.error("Failed to add note:", err.response?.data || err);
       alert(err.response?.data?.message || "Failed to add note");
     }
   };
 
   const deleteNote = async (id) => {
     try {
-      await axios.delete(`${API}api/notes/${id}`, {
-        headers: { Authorization: `Bearer ${token}` },
-        data: { userId }, // include userId in delete body
-      });
-      setNotes(prev => prev.filter(note => note._id !== id));
+      await axios.delete(`${API}api/notes/${id}`, { headers, data: { userId } });
+      fetchNotes();
     } catch (err) {
-      console.error(err);
+      console.error("Failed to delete note:", err.response?.data || err);
       alert(err.response?.data?.message || "Failed to delete note");
     }
   };
 
   const logout = () => {
-    localStorage.removeItem("token");
-    localStorage.removeItem("userId");
-    setToken("");
+    localStorage.clear();
+    setToken(null);
     setNotes([]);
   };
+
+  useEffect(() => {
+    if (token) fetchNotes();
+  }, [token]);
 
   return (
     <div className="dashboard-container">
@@ -113,4 +90,3 @@ export default function Dashboard({ token, setToken }) {
     </div>
   );
 }
-
