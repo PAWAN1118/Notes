@@ -11,7 +11,7 @@ export default function Notes({ token, setToken, userId }) {
   // Fetch notes
   const fetchNotes = async () => {
     try {
-      const res = await axios.get(`${API}/api/notes?userId=${userId}`, {
+      const res = await axios.get(`${API}/apinotes?userId=${userId}`, {
         headers: { Authorization: `Bearer ${token}` },
       });
       setNotes(res.data);
