@@ -14,17 +14,19 @@ export default function Login({ setToken, setPage }) {
       setError("Please fill in all fields");
       return;
     }
-
     try {
-      const res = await axios.post(`${API}api/auth/login`, form);
-      const { token, userId } = res.data;  // <-- get userId from backend
-      localStorage.setItem("token", token);
-      localStorage.setItem("userId", userId); // <-- save userId
-      setToken(token);
-      setError("");
-    } catch (err) {
-      setError(err.response?.data?.message || "Login failed");
-    }
+  const res = await axios.post(`${API}api/auth/login`, form);
+  const token = res.data.token;
+  const userId = res.data.user._id; // <-- save userId from backend response
+
+  localStorage.setItem("token", token);
+  localStorage.setItem("userId", userId); // <-- add this line
+  setToken(token);
+  setError("");
+} catch (err) {
+  setError(err.response?.data?.message || "Login failed");
+}
+
   };
 
   return (
