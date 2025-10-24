@@ -1,3 +1,5 @@
+
+
 import axios from "axios";
 import { useState } from "react";
 
@@ -23,8 +25,11 @@ export default function Register({ setPage, setToken }) {
         password: form.password,
       });
 
+      // Save token and userId for notes
       localStorage.setItem("token", loginRes.data.token);
+      localStorage.setItem("userId", loginRes.data.userId); // <-- store userId
       setToken(loginRes.data.token);
+
       setMsg("Registration successful!");
     } catch (err) {
       console.error(err);
