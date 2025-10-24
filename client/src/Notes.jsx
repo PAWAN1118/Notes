@@ -7,13 +7,9 @@ export default function Notes({ token, setToken }) {
   const [notes, setNotes] = useState([]);
   const [form, setForm] = useState({ title: "", content: "" });
 
-  // Get userId from localStorage
-  const userId = localStorage.getItem("userId");
-
-  // common headers with token
+  const userId = localStorage.getItem("userId"); // get saved userId
   const headers = { Authorization: `Bearer ${token}` };
 
-  // fetch notes for this user
   const fetchNotes = async () => {
     if (!userId) return;
     try {
@@ -24,7 +20,6 @@ export default function Notes({ token, setToken }) {
     }
   };
 
-  // add a new note
   const addNote = async () => {
     if (!form.title || !form.content) return alert("Fill all fields");
     try {
@@ -37,33 +32,22 @@ export default function Notes({ token, setToken }) {
     }
   };
 
-  // delete a note
   const deleteNote = async (id) => {
     try {
       await axios.delete(`${API}api/notes/${id}`, { headers, data: { userId } });
       fetchNotes();
     } catch (err) {
       console.error("Failed to delete note:", err.response?.data || err);
-      alert(err.response?.data?.message || "Failed to delete note");
     }
   };
 
-  useEffect(() => {
-    fetchNotes(); // fetch notes on mount
-  }, []);
+  useEffect(() => { fetchNotes(); }, []);
 
   return (
     <div className="notes">
       <header>
         <h1>My Notes</h1>
-        <button
-          onClick={() => {
-            localStorage.clear();
-            setToken(null);
-          }}
-        >
-          Logout
-        </button>
+        <button onClick={() => { localStorage.clear(); setToken(null); }}>Logout</button>
       </header>
 
       <div className="add-note">
@@ -92,4 +76,3 @@ export default function Notes({ token, setToken }) {
     </div>
   );
 }
-
