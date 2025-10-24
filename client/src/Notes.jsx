@@ -1,60 +1,55 @@
 import axios from "axios";
 import { useEffect, useState } from "react";
 
-const API = "https://notes-r5hn.onrender.com"; // Render backend URL
+const API = "https://notes-r5hn.onrender.com"; // backend URL
 
-export default function Notes({ token, setToken, userId }) {
+export default function Notes({ token, setToken }) {
   const [notes, setNotes] = useState([]);
   const [form, setForm] = useState({ title: "", content: "" });
-  const [error, setError] = useState("");
+  
+  // Get userId from localStorage
+  const userId = localStorage.getItem("userId");
 
+  // common headers with token
   const headers = { Authorization: `Bearer ${token}` };
 
-  // Fetch notes
+  // fetch notes for this user
   const fetchNotes = async () => {
+    if (!userId) return;
     try {
       const res = await axios.get(`${API}api/notes?userId=${userId}`, { headers });
       setNotes(res.data);
-      setError("");
     } catch (err) {
-      setError(err.response?.data?.message || "Failed to fetch notes");
+      console.error("Failed to fetch notes:", err.response?.data || err);
     }
   };
 
-  // Add note
+  // add a new note
   const addNote = async () => {
-    if (!form.title || !form.content) {
-      setError("Please fill in all fields");
-      return;
-    }
-
+    if (!form.title || !form.content) return alert("Fill all fields");
     try {
-      await axios.post(
-        `${API}api/notes`,
-        { title: form.title, content: form.content, userId },
-        { headers }
-      );
+      await axios.post(`${API}api/notes`, { ...form, userId }, { headers });
       setForm({ title: "", content: "" });
       fetchNotes();
-      setError("");
     } catch (err) {
-      setError(err.response?.data?.message || "Failed to add note");
+      console.error("Failed to add note:", err.response?.data || err);
+      alert(err.response?.data?.message || "Failed to add note");
     }
   };
 
-  // Delete note
+  // delete a note
   const deleteNote = async (id) => {
     try {
       await axios.delete(`${API}api/notes/${id}`, { headers, data: { userId } });
       fetchNotes();
     } catch (err) {
-      setError(err.response?.data?.message || "Failed to delete note");
+      console.error("Failed to delete note:", err.response?.data || err);
     }
   };
 
   useEffect(() => {
-    if (token && userId) fetchNotes();
-  }, [token, userId]);
+    fetchNotes(); // fetch notes on mount
+  }, []);
 
   return (
     <div className="notes">
@@ -69,8 +64,6 @@ export default function Notes({ token, setToken, userId }) {
           Logout
         </button>
       </header>
-
-      {error && <p className="error">{error}</p>}
 
       <div className="add-note">
         <input
