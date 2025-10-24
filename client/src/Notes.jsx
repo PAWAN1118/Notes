@@ -1,7 +1,7 @@
 import axios from "axios";
 import { useEffect, useState } from "react";
 
-const API = "https://notes-r5hn.onrender.com/api"; // Render backend URL
+const API = "https://notes-r5hn.onrender.com"; // Render backend URL
 
 export default function Notes({ token, setToken, userId }) {
   const [notes, setNotes] = useState([]);
@@ -13,7 +13,7 @@ export default function Notes({ token, setToken, userId }) {
   // Fetch notes
   const fetchNotes = async () => {
     try {
-      const res = await axios.get(`${API}/notes?userId=${userId}`, { headers });
+      const res = await axios.get(`${API}api/notes?userId=${userId}`, { headers });
       setNotes(res.data);
       setError("");
     } catch (err) {
@@ -30,7 +30,7 @@ export default function Notes({ token, setToken, userId }) {
 
     try {
       await axios.post(
-        `${API}/notes`,
+        `${API}api/notes`,
         { title: form.title, content: form.content, userId },
         { headers }
       );
@@ -45,7 +45,7 @@ export default function Notes({ token, setToken, userId }) {
   // Delete note
   const deleteNote = async (id) => {
     try {
-      await axios.delete(`${API}/notes/${id}`, { headers, data: { userId } });
+      await axios.delete(`${API}api/notes/${id}`, { headers, data: { userId } });
       fetchNotes();
     } catch (err) {
       setError(err.response?.data?.message || "Failed to delete note");
