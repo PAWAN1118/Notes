@@ -6,7 +6,7 @@ const API = "https://notes-r5hn.onrender.com"; // backend URL
 export default function Notes({ token, setToken }) {
   const [notes, setNotes] = useState([]);
   const [form, setForm] = useState({ title: "", content: "" });
-  
+
   // Get userId from localStorage
   const userId = localStorage.getItem("userId");
 
@@ -44,6 +44,7 @@ export default function Notes({ token, setToken }) {
       fetchNotes();
     } catch (err) {
       console.error("Failed to delete note:", err.response?.data || err);
+      alert(err.response?.data?.message || "Failed to delete note");
     }
   };
 
@@ -91,3 +92,4 @@ export default function Notes({ token, setToken }) {
     </div>
   );
 }
+
