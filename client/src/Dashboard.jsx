@@ -20,7 +20,7 @@ export default function Dashboard({ token, setToken }) {
 
     const fetchNotes = async () => {
       try {
-        const res = await axios.get(`${API}/notes`, {
+        const res = await axios.get(`${API}notes`, {
           headers: { Authorization: `Bearer ${token}` },
         });
         setNotes(res.data);
@@ -53,7 +53,7 @@ export default function Dashboard({ token, setToken }) {
 
   const deleteNote = async (id) => {
     try {
-      await axios.delete(`${API}/notes/${id}`, {
+      await axios.delete(`${API}notes/${id}`, {
         headers: { Authorization: `Bearer ${token}` },
       });
       setNotes(prev => prev.filter(note => note._id !== id));
