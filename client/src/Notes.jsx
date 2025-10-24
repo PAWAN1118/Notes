@@ -8,14 +8,14 @@ export default function Notes({ token, setToken }) {
   const [form, setForm] = useState({ title: "", content: "" });
 
   const fetchNotes = async () => {
-    const res = await axios.get(`${API}/notes`, {
+    const res = await axios.get(`${API}notes`, {
       headers: { Authorization: `Bearer ${token}` },
     });
     setNotes(res.data);
   };
 
   const addNote = async () => {
-    await axios.post(`${API}/notes`, form, {
+    await axios.post(`${API}notes`, form, {
       headers: { Authorization: `Bearer ${token}` },
     });
     setForm({ title: "", content: "" });
@@ -23,7 +23,7 @@ export default function Notes({ token, setToken }) {
   };
 
   const deleteNote = async (id) => {
-    await axios.delete(`${API}/notes/${id}`, {
+    await axios.delete(`${API}notes/${id}`, {
       headers: { Authorization: `Bearer ${token}` },
     });
     fetchNotes();
