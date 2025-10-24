@@ -1,23 +1,22 @@
 import axios from "axios";
 import { useEffect, useState } from "react";
 
-const API = import.meta.env.VITE_API_URL; // NO trailing slash
+const API = "https://notes-r5hn.onrender.com"; // Render backend URL
 
 export default function Notes({ token, setToken, userId }) {
   const [notes, setNotes] = useState([]);
   const [form, setForm] = useState({ title: "", content: "" });
   const [error, setError] = useState("");
 
+  const headers = { Authorization: `Bearer ${token}` };
+
   // Fetch notes
   const fetchNotes = async () => {
     try {
-      const res = await axios.get(`${API}/api/notes?userId=${userId}`, {
-        headers: { Authorization: `Bearer ${token}` },
-      });
+      const res = await axios.get(`${API}/api/notes?userId=${userId}`, { headers });
       setNotes(res.data);
       setError("");
     } catch (err) {
-      console.error(err);
       setError(err.response?.data?.message || "Failed to fetch notes");
     }
   };
@@ -32,13 +31,13 @@ export default function Notes({ token, setToken, userId }) {
     try {
       await axios.post(
         `${API}/api/notes`,
-        { ...form, userId },
-        { headers: { Authorization: `Bearer ${token}` } }
+        { title: form.title, content: form.content, userId },
+        { headers }
       );
       setForm({ title: "", content: "" });
       fetchNotes();
+      setError("");
     } catch (err) {
-      console.error(err);
       setError(err.response?.data?.message || "Failed to add note");
     }
   };
@@ -46,20 +45,16 @@ export default function Notes({ token, setToken, userId }) {
   // Delete note
   const deleteNote = async (id) => {
     try {
-      await axios.delete(`${API}/api/notes/${id}`, {
-        headers: { Authorization: `Bearer ${token}` },
-        data: { userId },
-      });
+      await axios.delete(`${API}/api/notes/${id}`, { headers, data: { userId } });
       fetchNotes();
     } catch (err) {
-      console.error(err);
       setError(err.response?.data?.message || "Failed to delete note");
     }
   };
 
   useEffect(() => {
-    if (userId) fetchNotes();
-  }, [userId]);
+    if (token && userId) fetchNotes();
+  }, [token, userId]);
 
   return (
     <div className="notes">
