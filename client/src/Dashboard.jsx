@@ -4,6 +4,7 @@
 import { useState, useEffect } from "react";
 import axios from "axios";
 
+
 const API = import.meta.env.VITE_API_URL;
 
 export default function Dashboard({ token, setToken }) {
@@ -11,7 +12,7 @@ export default function Dashboard({ token, setToken }) {
   const [title, setTitle] = useState("");
   const [content, setContent] = useState("");
 
-  const userId = localStorage.getItem("userId"); // get userId
+  const userId = localStorage.getItem("userId"); // get userId from login
 
   // Load token from localStorage on mount
   useEffect(() => {
@@ -25,8 +26,9 @@ export default function Dashboard({ token, setToken }) {
 
     const fetchNotes = async () => {
       try {
-        const res = await axios.get(`${API}api/notes?userId=${userId}`, {
+        const res = await axios.get(`${API}api/notes`, {
           headers: { Authorization: `Bearer ${token}` },
+          params: { userId }, // send userId as query
         });
         setNotes(res.data);
       } catch (err) {
@@ -60,7 +62,7 @@ export default function Dashboard({ token, setToken }) {
     try {
       await axios.delete(`${API}api/notes/${id}`, {
         headers: { Authorization: `Bearer ${token}` },
-        data: { userId }, // include userId in delete request
+        data: { userId }, // include userId in delete body
       });
       setNotes(prev => prev.filter(note => note._id !== id));
     } catch (err) {
