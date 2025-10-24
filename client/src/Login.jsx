@@ -17,14 +17,10 @@ export default function Login({ setToken, setPage }) {
 
     try {
       const res = await axios.post(`${API}api/auth/login`, form);
-
-      const { token, userId } = res.data;
-
-      // Save token and userId in localStorage
+      const { token, userId } = res.data;  // <-- get userId from backend
       localStorage.setItem("token", token);
-      localStorage.setItem("userId", userId);
-
-      setToken(token); // triggers Dashboard/Notes fetch
+      localStorage.setItem("userId", userId); // <-- save userId
+      setToken(token);
       setError("");
     } catch (err) {
       setError(err.response?.data?.message || "Login failed");
@@ -37,13 +33,13 @@ export default function Login({ setToken, setPage }) {
       <input
         placeholder="Username"
         value={form.username}
-        onChange={(e) => setForm({ ...form, username: e.target.value })}
+        onChange={e => setForm({ ...form, username: e.target.value })}
       />
       <input
         placeholder="Password"
         type="password"
         value={form.password}
-        onChange={(e) => setForm({ ...form, password: e.target.value })}
+        onChange={e => setForm({ ...form, password: e.target.value })}
       />
       <button onClick={login}>Login</button>
       <p>
@@ -56,3 +52,4 @@ export default function Login({ setToken, setPage }) {
     </div>
   );
 }
+
