@@ -1,14 +1,13 @@
-import { useState, useEffect } from "react";
 import axios from "axios";
+import { useEffect, useState } from "react";
 
 const API = "https://notes-r5hn.onrender.com"; // backend URL
 
-export default function Dashboard({ token, setToken }) {
+export default function Notes({ token, setToken }) {
   const [notes, setNotes] = useState([]);
-  const [title, setTitle] = useState("");
-  const [content, setContent] = useState("");
+  const [form, setForm] = useState({ title: "", content: "" });
 
-  const userId = localStorage.getItem("userId"); // get saved userId
+  const userId = localStorage.getItem("userId"); // get userId from storage
   const headers = { Authorization: `Bearer ${token}` };
 
   const fetchNotes = async () => {
@@ -18,16 +17,14 @@ export default function Dashboard({ token, setToken }) {
       setNotes(res.data);
     } catch (err) {
       console.error("Failed to fetch notes:", err.response?.data || err);
-      if (err.response?.status === 401) logout();
     }
   };
 
   const addNote = async () => {
-    if (!title || !content) return alert("Fill all fields");
+    if (!form.title || !form.content) return alert("Fill all fields");
     try {
-      await axios.post(`${API}/api/notes`, { title, content, userId }, { headers });
-      setTitle("");
-      setContent("");
+      await axios.post(`${API}/api/notes`, { ...form, userId }, { headers });
+      setForm({ title: "", content: "" });
       fetchNotes();
     } catch (err) {
       console.error("Failed to add note:", err.response?.data || err);
@@ -41,52 +38,43 @@ export default function Dashboard({ token, setToken }) {
       fetchNotes();
     } catch (err) {
       console.error("Failed to delete note:", err.response?.data || err);
-      alert(err.response?.data?.message || "Failed to delete note");
     }
   };
 
-  const logout = () => {
-    localStorage.clear();
-    setToken(null);
-    setNotes([]);
-  };
-
-  useEffect(() => {
-    if (token) fetchNotes();
-  }, [token]);
+  useEffect(() => { fetchNotes(); }, []);
 
   return (
-    <div className="dashboard-container">
-      <div className="dashboard-header">
-        <h1>Notes Dashboard</h1>
-        <button className="logout-btn" onClick={logout}>Logout</button>
-      </div>
+    <div className="notes">
+      <header>
+        <h1>My Notes</h1>
+        <button onClick={() => { localStorage.clear(); setToken(null); }}>
+          Logout
+        </button>
+      </header>
 
-      <div className="note-form">
+      <div className="add-note">
         <input
-          type="text"
           placeholder="Title"
-          value={title}
-          onChange={e => setTitle(e.target.value)}
+          value={form.title}
+          onChange={(e) => setForm({ ...form, title: e.target.value })}
         />
-        <textarea
+        <input
           placeholder="Content"
-          value={content}
-          onChange={e => setContent(e.target.value)}
+          value={form.content}
+          onChange={(e) => setForm({ ...form, content: e.target.value })}
         />
-        <button onClick={addNote}>Add Note</button>
+        <button onClick={addNote}>Add</button>
       </div>
 
-      <div className="notes-list">
-        {notes.length === 0 && <p>No notes yet. Add one above!</p>}
-        {notes.map(note => (
-          <div className="note-card" key={note._id}>
-            <h3>{note.title}</h3>
-            <p>{note.content}</p>
-            <button onClick={() => deleteNote(note._id)}>Delete</button>
-          </div>
+      <ul>
+        {notes.map((n) => (
+          <li key={n._id}>
+            <h3>{n.title}</h3>
+            <p>{n.content}</p>
+            <button onClick={() => deleteNote(n._id)}>Delete</button>
+          </li>
         ))}
-      </div>
+      </ul>
     </div>
   );
 }
