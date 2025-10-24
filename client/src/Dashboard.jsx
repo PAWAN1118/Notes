@@ -1,3 +1,6 @@
+
+
+
 import { useState, useEffect } from "react";
 import axios from "axios";
 
@@ -8,6 +11,8 @@ export default function Dashboard({ token, setToken }) {
   const [title, setTitle] = useState("");
   const [content, setContent] = useState("");
 
+  const userId = localStorage.getItem("userId"); // get userId
+
   // Load token from localStorage on mount
   useEffect(() => {
     const storedToken = token || localStorage.getItem("token");
@@ -16,11 +21,11 @@ export default function Dashboard({ token, setToken }) {
 
   // Fetch notes whenever token is available
   useEffect(() => {
-    if (!token) return;
+    if (!token || !userId) return;
 
     const fetchNotes = async () => {
       try {
-        const res = await axios.get(`${API}api/notes`, {
+        const res = await axios.get(`${API}api/notes?userId=${userId}`, {
           headers: { Authorization: `Bearer ${token}` },
         });
         setNotes(res.data);
@@ -31,7 +36,7 @@ export default function Dashboard({ token, setToken }) {
     };
 
     fetchNotes();
-  }, [token]);
+  }, [token, userId]);
 
   const addNote = async () => {
     if (!title || !content) return;
@@ -39,7 +44,7 @@ export default function Dashboard({ token, setToken }) {
     try {
       const res = await axios.post(
         `${API}api/notes`,
-        { title, content },
+        { title, content, userId }, // include userId
         { headers: { Authorization: `Bearer ${token}` } }
       );
       setNotes(prev => [...prev, res.data]);
@@ -55,6 +60,7 @@ export default function Dashboard({ token, setToken }) {
     try {
       await axios.delete(`${API}api/notes/${id}`, {
         headers: { Authorization: `Bearer ${token}` },
+        data: { userId }, // include userId in delete request
       });
       setNotes(prev => prev.filter(note => note._id !== id));
     } catch (err) {
@@ -65,6 +71,7 @@ export default function Dashboard({ token, setToken }) {
 
   const logout = () => {
     localStorage.removeItem("token");
+    localStorage.removeItem("userId");
     setToken("");
     setNotes([]);
   };
@@ -104,3 +111,4 @@ export default function Dashboard({ token, setToken }) {
     </div>
   );
 }
+
