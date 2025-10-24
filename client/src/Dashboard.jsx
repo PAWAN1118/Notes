@@ -14,7 +14,7 @@ export default function Dashboard({ token, setToken }) {
   const fetchNotes = async () => {
     if (!userId) return;
     try {
-      const res = await axios.get(`${API}api/notes?userId=${userId}`, { headers });
+      const res = await axios.get(`${API}/api/notes?userId=${userId}`, { headers });
       setNotes(res.data);
     } catch (err) {
       console.error("Failed to fetch notes:", err.response?.data || err);
@@ -25,7 +25,7 @@ export default function Dashboard({ token, setToken }) {
   const addNote = async () => {
     if (!title || !content) return alert("Fill all fields");
     try {
-      await axios.post(`${API}api/notes`, { title, content, userId }, { headers });
+      await axios.post(`${API}/api/notes`, { title, content, userId }, { headers });
       setTitle("");
       setContent("");
       fetchNotes();
@@ -37,7 +37,7 @@ export default function Dashboard({ token, setToken }) {
 
   const deleteNote = async (id) => {
     try {
-      await axios.delete(`${API}api/notes/${id}`, { headers, data: { userId } });
+      await axios.delete(`${API}/api/notes/${id}`, { headers, data: { userId } });
       fetchNotes();
     } catch (err) {
       console.error("Failed to delete note:", err.response?.data || err);
