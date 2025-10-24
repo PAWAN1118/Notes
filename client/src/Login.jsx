@@ -1,7 +1,9 @@
 
 
+
 import axios from "axios";
 import { useState } from "react";
+
 
 const API = import.meta.env.VITE_API_URL;
 
@@ -14,19 +16,19 @@ export default function Login({ setToken, setPage }) {
       setError("Please fill in all fields");
       return;
     }
+
     try {
-  const res = await axios.post(`${API}api/auth/login`, form);
-  const token = res.data.token;
-  const userId = res.data.user._id; // <-- save userId from backend response
+      const res = await axios.post(`${API}api/auth/login`, form);
+      const token = res.data.token;
+      const userId = res.data.user._id; // get userId from backend response
 
-  localStorage.setItem("token", token);
-  localStorage.setItem("userId", userId); // <-- add this line
-  setToken(token);
-  setError("");
-} catch (err) {
-  setError(err.response?.data?.message || "Login failed");
-}
-
+      localStorage.setItem("token", token);
+      localStorage.setItem("userId", userId); // store userId
+      setToken(token);
+      setError("");
+    } catch (err) {
+      setError(err.response?.data?.message || "Login failed");
+    }
   };
 
   return (
@@ -54,4 +56,3 @@ export default function Login({ setToken, setPage }) {
     </div>
   );
 }
-
