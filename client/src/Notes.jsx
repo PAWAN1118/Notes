@@ -1,7 +1,7 @@
 import axios from "axios";
 import { useEffect, useState } from "react";
 
-const API = import.meta.env.VITE_API_URL; // make sure NO trailing slash
+const API = import.meta.env.VITE_API_URL; // NO trailing slash
 
 export default function Notes({ token, setToken, userId }) {
   const [notes, setNotes] = useState([]);
